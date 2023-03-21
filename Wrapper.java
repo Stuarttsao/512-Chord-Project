@@ -14,11 +14,10 @@ public class Wrapper {
     public static void main(String[] args) {
         helper = new Helper();
 
-        // 0. node ip 1. node port 2. key 4. value
+        // 0. node ip 1. node port 2. key 3. value
 
-        // arg = 4 means insert , arg = 5 means get
-        if (args.length == 4 || args.length == 5) {
-            System.out.println("Inserting key: " + args[3] + " value: " + args[4]);
+        // arg = 3 means insert , arg = 4 means get
+        if (args.length == 3 || args.length == 4) {
             localAddress = Helper.createSocketAddress(args[0] + ":" + args[1]);
             if (localAddress == null) {
                 System.out.println("Cannot find address you are trying to contact. Now exit.");
@@ -79,51 +78,39 @@ public class Wrapper {
 
             }
 
-            // begin to take user input
-            Scanner userinput = new Scanner(System.in);
-            while (true) {
-                System.out.println("\nPlease enter your search key (or type \"quit\" to leave): ");
-                String command = null;
-                command = userinput.nextLine();
 
-                // quit
-                if (command.startsWith("quit")) {
-                    System.exit(0);
-                }
+            // search key location and print out response
+            long hash = Helper.hashString(args[2]);
+            System.out.println("\nHash value is " + Long.toHexString(hash));
+            InetSocketAddress result = Helper.requestAddress(localAddress, "FINDSUCC_" + hash);
 
-                // search
-                else if (command.length() > 0) {
-                    long hash = Helper.hashString(command);
-                    System.out.println("\nHash value is " + Long.toHexString(hash));
-                    InetSocketAddress result = Helper.requestAddress(localAddress, "FINDSUCC_" + hash);
+            // if fail to send request, local node is disconnected, exit
+            if (result == null) {
+                System.out.println("The node your are contacting is disconnected. Now exit.");
+                System.exit(0);
+            }
 
-                    // if fail to send request, local node is disconnected, exit
-                    if (result == null) {
-                        System.out.println("The node your are contacting is disconnected. Now exit.");
-                        System.exit(0);
-                    }
-
-                    // print out response
-                    System.out.println("\nResponse from node " + localAddress.getAddress().toString() + ", port "
+            // print out response
+            System.out.println("\nResponse from node " + localAddress.getAddress().toString() + ", port "
                             + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ":");
-                    System.out.println("Node " + result.getAddress().toString() + ", port " + result.getPort()
+            System.out.println("Target Node " + result.getAddress().toString() + ", port " + result.getPort()
                             + ", position " + Helper.hexIdAndPosition(result));
 
+            targetAddress = Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());
 
 
-                    break;
-                }
-            }
-            if(args.length == 5){
+                
+            
+            if(args.length == 4){
                 // insert key value
-                System.out.println("Inserting key: " + args[3] + " value: " + args[4]);
-                String res = insert(args[3], args[4]);
+                System.out.println("Inserting key: " + args[2] + " value: " + args[3] + " to node: " + targetAddress.getAddress().toString() + " port: " + targetAddress.getPort());
+                String res = insert(args[2], args[3]);
                 System.out.println(res);
 
-            } else if(args.length == 4){
+            } else if(args.length == 3){
                 // get key
-                System.out.println("Getting key: " + args[3]);
-                String res = get(args[3]);
+                System.out.println("Getting key: " + args[2] + " from node: " + targetAddress.getAddress().toString() + " port: " + targetAddress.getPort());
+                String res = get(args[2]);
                 System.out.println(res);
             }
 
