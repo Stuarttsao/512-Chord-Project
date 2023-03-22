@@ -88,7 +88,10 @@ public class Query {
 				
 				// quit
 				if (command.startsWith("quit")) {
-					System.exit(0);				
+					
+					System.exit(0);	
+					break;
+			
 				}
 				
 				// search
@@ -107,7 +110,6 @@ public class Query {
 					System.out.println("\nResponse from node "+localAddress.getAddress().toString()+", port "+localAddress.getPort()+", position "+Helper.hexIdAndPosition(localAddress)+":");
 					System.out.println("Node "+result.getAddress().toString()+", port "+result.getPort()+", position "+Helper.hexIdAndPosition(result ));
 				}
-				break;
 			}
 		}
 		else {
