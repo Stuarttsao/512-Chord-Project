@@ -19,8 +19,9 @@ if __name__ == "__main__":
         curr_join_process = subprocess.Popen(["java", "Chord", str(curr_port_num), local_ip, str(start_port_num)], shell=False)
         process_list.append(curr_join_process)
 
-    time.sleep(3)
-
-    for p in process_list:
-        pid = p.pid
-        os.kill(pid, signal.SIGKILL)
+    ##time.sleep(3)
+    cmd_input = input('Kill?\n')
+    if cmd_input is 'y':
+        for p in process_list:
+            pid = p.pid
+            os.kill(pid, signal.SIGKILL)
