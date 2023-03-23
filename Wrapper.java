@@ -5,11 +5,23 @@ import java.util.Scanner;
 import java.util.HashMap;
 
 public class Wrapper {
-
+    /* need non static variables for instantiating wrapper instances
     private static InetSocketAddress localAddress;
     private static InetSocketAddress targetAddress;
     private static HashMap<String, String> storage;
     private static Helper helper;
+     */
+    private InetSocketAddress localAddress;
+    private InetSocketAddress targetAddress;
+    private HashMap<String, String> storage;
+    private Helper helper;
+
+    public Wrapper(String ip, String port) {
+        helper = new Helper();
+        storage = new HashMap<String, String>();
+        joinChordNetwork(ip, port);
+    }
+
 
 
     public Wrapper() {
@@ -21,6 +33,7 @@ public class Wrapper {
      * Main method
      * @param args
      */
+    /*
     public static void main(String[] args) {
         helper = new Helper();
 
@@ -121,7 +134,7 @@ public class Wrapper {
                     String value = userinput.nextLine();
                     System.out.println("Inserting key: " + key + " value: " + value + " to node: "
                             + targetAddress.getAddress().toString() + " port: " + targetAddress.getPort());
-                    String res = insert(key, value);
+                    String res = insertTempHashMap(key, value);
                     System.out.println(res);
                 } else if (command.equals("get")) {
                     System.out.println("Please enter key: ");
@@ -148,7 +161,7 @@ public class Wrapper {
 
                     System.out.println("Getting key: " + key + " from node: " + targetAddress.getAddress().toString()
                             + " port: " + targetAddress.getPort());
-                    String res = get(key);
+                    String res = getTempHashMap(key);
                     System.out.println("\n" + res + "\n" ) ;
                 } else {
                     System.out.println("Invalid command. Please try again.");
@@ -161,8 +174,9 @@ public class Wrapper {
             System.exit(0);
         }
     }
+     */
 
-    public static String get(String key) {
+    public String getTempHashMap(String key) {
         // get from local storage
         if (storage == null) {
             storage = new HashMap<String, String>();
@@ -179,7 +193,7 @@ public class Wrapper {
         return value;
     }
 
-    public static String insert(String key, String value) {
+    public String insertTempHashMap(String key, String value) {
         // insert into local storage
         if (storage == null) {
             storage = new HashMap<String, String>();
@@ -191,8 +205,67 @@ public class Wrapper {
         return "successfully added key: " + key + " value: " + value + " to Chord";
     }
 
+    private void joinChordNetwork(String ip, String port) {
+        localAddress = Helper.createSocketAddress(ip + ":" + port);
+        if (localAddress == null) {
+            System.out.println("Cannot find address you are trying to contact. Now exit.");
+            System.exit(0);
+        }
 
-    public static String connectToNode(String ip, String port) {
+        // successfully constructed socket address of the node we are
+        // trying to contact, check if it's alive
+        String response = Helper.sendRequest(localAddress, "KEEP");
+
+        // if it's dead, exit
+        if (response == null || !response.equals("ALIVE")) {
+            System.out.println("\nCannot find node you are trying to contact. Now exit.\n");
+            System.exit(0);
+        }
+
+        // it's alive, print connection info
+        System.out.println("Connection to node " + localAddress.getAddress().toString() + ", port "
+                + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ".");
+
+        // check if system is stable
+        boolean pred = false;
+        boolean succ = false;
+        InetSocketAddress pred_addr = Helper.requestAddress(localAddress, "YOURPRE");
+        InetSocketAddress succ_addr = Helper.requestAddress(localAddress, "YOURSUCC");
+        if (pred_addr == null || succ_addr == null) {
+            System.out.println("The node your are contacting is disconnected. Now exit.");
+            System.exit(0);
+        }
+        if (pred_addr.equals(localAddress))
+            pred = true;
+        if (succ_addr.equals(localAddress))
+            succ = true;
+
+        // we suppose the system is stable if (1) this node has both valid
+        // predecessor and successor or (2) none of them
+        while (pred ^ succ) {
+            System.out.println("Waiting for the system to be stable...");
+            pred_addr = Helper.requestAddress(localAddress, "YOURPRE");
+            succ_addr = Helper.requestAddress(localAddress, "YOURSUCC");
+            if (pred_addr == null || succ_addr == null) {
+                System.out.println("The node your are contacting is disconnected. Now exit.");
+                System.exit(0);
+            }
+            if (pred_addr.equals(localAddress))
+                pred = true;
+            else
+                pred = false;
+            if (succ_addr.equals(localAddress))
+                succ = true;
+            else
+                succ = false;
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
+
+    public String connectToNode(String ip, String port) {
         helper = new Helper();
         localAddress = Helper.createSocketAddress(ip + ":" + port);
         if (localAddress == null) {
@@ -258,5 +331,57 @@ public class Wrapper {
             return "System is stable. You are now connected to node " + localAddress.getAddress().toString() + ", port "
                     + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ".";
     }
+    public void insert(String key, String value) {
+        // search key location and print out response
+        long hash = Helper.hashString(key);
+        System.out.println("\nHash value is " + Long.toHexString(hash));
+        InetSocketAddress result = Helper.requestAddress(localAddress, "FINDSUCC_" + hash);
 
+        // if fail to send request, local node is disconnected, exit
+        if (result == null) {
+            System.out.println("The node your are contacting is disconnected. Now exit.");
+            System.exit(0);
+        }
+
+        // print out response
+        System.out.println("\nResponse from node " + localAddress.getAddress().toString() + ", port "
+                + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ":");
+        System.out.println("Target Node " + result.getAddress().toString() + ", port " + result.getPort()
+                + ", position " + Helper.hexIdAndPosition(result));
+
+        targetAddress = Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());
+
+        System.out.println("Inserting key: " + key + " value: " + value + " to node: "
+                + targetAddress.getAddress().toString() + " port: " + targetAddress.getPort());
+        String res = insertTempHashMap(key, value);
+        System.out.println(res);
+    }
+
+    public String get(String key) {
+
+        // search key location and print out response
+        long hash = Helper.hashString(key);
+        System.out.println("\nHash value is " + Long.toHexString(hash));
+        InetSocketAddress result = Helper.requestAddress(localAddress, "FINDSUCC_" + hash);
+
+        // if fail to send request, local node is disconnected, exit
+        if (result == null) {
+            System.out.println("The node your are contacting is disconnected. Now exit.");
+            System.exit(0);
+        }
+
+        // print out response
+        System.out.println("\nResponse from node " + localAddress.getAddress().toString() + ", port "
+                + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ":");
+        System.out.println("Target Node " + result.getAddress().toString() + ", port " + result.getPort()
+                + ", position " + Helper.hexIdAndPosition(result));
+
+        targetAddress = Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());
+
+        System.out.println("Getting key: " + key + " from node: " + targetAddress.getAddress().toString()
+                + " port: " + targetAddress.getPort());
+        String res = getTempHashMap(key);
+        System.out.println("\n" + res + "\n" ) ;
+        return res;
+    }
 }
