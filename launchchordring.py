@@ -21,7 +21,12 @@ if __name__ == "__main__":
 
     ##time.sleep(3)
     cmd_input = input('Kill?\n')
-    if cmd_input is 'y':
-        for p in process_list:
-            pid = p.pid
-            os.kill(pid, signal.SIGKILL)
+    while not cmd_input is 'y':
+        cmd_input = input('Try again?\n')
+
+    for p in process_list:
+        pid = p.pid
+        os.kill(pid, signal.SIGKILL)
+
+
+def run_cmd
