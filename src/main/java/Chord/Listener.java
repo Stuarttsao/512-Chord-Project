@@ -1,10 +1,12 @@
+package Chord;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Listener thread that keeps listening to a port and asks talker thread to process
+ * Chord.Listener thread that keeps listening to a port and asks talker thread to process
  * when a request is accepted.
  * @author Chuan Xia
  *

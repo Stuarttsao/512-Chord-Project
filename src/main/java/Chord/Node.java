@@ -1,8 +1,10 @@
+package Chord;
+
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 
 /**
- * Node class that implements the core data structure 
+ * Chord.Node class that implements the core data structure
  * and functionalities of a chord node
  * @author Chuan Xia
  *

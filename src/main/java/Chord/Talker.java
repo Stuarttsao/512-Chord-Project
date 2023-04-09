@@ -1,3 +1,5 @@
+package Chord;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -5,7 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
- * Talker thread that processes request accepted by listener and writes
+ * Chord.Talker thread that processes request accepted by listener and writes
  * response to socket.
  * @author Chuan Xia
  *
@@ -37,7 +39,7 @@ public class Talker implements Runnable{
 			input.close();
 		} catch (IOException e) {
 			throw new RuntimeException(
-					"Cannot talk.\nServer port: "+local.getAddress().getPort()+"; Talker port: "+talkSocket.getPort(), e);
+					"Cannot talk.\nServer port: "+local.getAddress().getPort()+"; Chord.Talker port: "+talkSocket.getPort(), e);
 		}
 	}
 

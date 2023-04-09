@@ -1,7 +1,6 @@
-import java.net.InetAddress;
+package Chord;
+
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.util.Scanner;
 import java.util.HashMap;
 
 public class Wrapper {
@@ -9,7 +8,7 @@ public class Wrapper {
     private static InetSocketAddress localAddress;
     private static InetSocketAddress targetAddress;
     private static HashMap<String, String> storage;
-    private static Helper helper;
+    private static Chord.Helper helper;
      */
     private InetSocketAddress localAddress;
     private InetSocketAddress targetAddress;
@@ -35,12 +34,12 @@ public class Wrapper {
      */
     /*
     public static void main(String[] args) {
-        helper = new Helper();
+        helper = new Chord.Helper();
 
         // 0. node ip 1. node port
 
         if (args.length == 2) {
-            localAddress = Helper.createSocketAddress(args[0] + ":" + args[1]);
+            localAddress = Chord.Helper.createSocketAddress(args[0] + ":" + args[1]);
             if (localAddress == null) {
                 System.out.println("Cannot find address you are trying to contact. Now exit.");
                 System.exit(0);
@@ -48,7 +47,7 @@ public class Wrapper {
 
             // successfully constructed socket address of the node we are
             // trying to contact, check if it's alive
-            String response = Helper.sendRequest(localAddress, "KEEP");
+            String response = Chord.Helper.sendRequest(localAddress, "KEEP");
 
             // if it's dead, exit
             if (response == null || !response.equals("ALIVE")) {
@@ -58,13 +57,13 @@ public class Wrapper {
 
             // it's alive, print connection info
             System.out.println("Connection to node " + localAddress.getAddress().toString() + ", port "
-                    + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ".");
+                    + localAddress.getPort() + ", position " + Chord.Helper.hexIdAndPosition(localAddress) + ".");
 
             // check if system is stable
             boolean pred = false;
             boolean succ = false;
-            InetSocketAddress pred_addr = Helper.requestAddress(localAddress, "YOURPRE");
-            InetSocketAddress succ_addr = Helper.requestAddress(localAddress, "YOURSUCC");
+            InetSocketAddress pred_addr = Chord.Helper.requestAddress(localAddress, "YOURPRE");
+            InetSocketAddress succ_addr = Chord.Helper.requestAddress(localAddress, "YOURSUCC");
             if (pred_addr == null || succ_addr == null) {
                 System.out.println("The node your are contacting is disconnected. Now exit.");
                 System.exit(0);
@@ -78,8 +77,8 @@ public class Wrapper {
             // predecessor and successor or (2) none of them
             while (pred ^ succ) {
                 System.out.println("Waiting for the system to be stable...");
-                pred_addr = Helper.requestAddress(localAddress, "YOURPRE");
-                succ_addr = Helper.requestAddress(localAddress, "YOURSUCC");
+                pred_addr = Chord.Helper.requestAddress(localAddress, "YOURPRE");
+                succ_addr = Chord.Helper.requestAddress(localAddress, "YOURSUCC");
                 if (pred_addr == null || succ_addr == null) {
                     System.out.println("The node your are contacting is disconnected. Now exit.");
                     System.exit(0);
@@ -112,9 +111,9 @@ public class Wrapper {
                     System.out.println("Please enter key: ");
                     String key = userinput.nextLine();
                     // search key location and print out response
-                    long hash = Helper.hashString(key);
+                    long hash = Chord.Helper.hashString(key);
                     System.out.println("\nHash value is " + Long.toHexString(hash));
-                    InetSocketAddress result = Helper.requestAddress(localAddress, "FINDSUCC_" + hash);
+                    InetSocketAddress result = Chord.Helper.requestAddress(localAddress, "FINDSUCC_" + hash);
 
                     // if fail to send request, local node is disconnected, exit
                     if (result == null) {
@@ -124,11 +123,11 @@ public class Wrapper {
 
                     // print out response
                     System.out.println("\nResponse from node " + localAddress.getAddress().toString() + ", port "
-                            + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ":");
-                    System.out.println("Target Node " + result.getAddress().toString() + ", port " + result.getPort()
-                            + ", position " + Helper.hexIdAndPosition(result));
+                            + localAddress.getPort() + ", position " + Chord.Helper.hexIdAndPosition(localAddress) + ":");
+                    System.out.println("Target Chord.Node " + result.getAddress().toString() + ", port " + result.getPort()
+                            + ", position " + Chord.Helper.hexIdAndPosition(result));
 
-                    targetAddress = Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());
+                    targetAddress = Chord.Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());
 
                     System.out.println("Please enter value: ");
                     String value = userinput.nextLine();
@@ -141,9 +140,9 @@ public class Wrapper {
                     String key = userinput.nextLine();
 
                     // search key location and print out response
-                    long hash = Helper.hashString(key);
+                    long hash = Chord.Helper.hashString(key);
                     System.out.println("\nHash value is " + Long.toHexString(hash));
-                    InetSocketAddress result = Helper.requestAddress(localAddress, "FINDSUCC_" + hash);
+                    InetSocketAddress result = Chord.Helper.requestAddress(localAddress, "FINDSUCC_" + hash);
 
                     // if fail to send request, local node is disconnected, exit
                     if (result == null) {
@@ -153,11 +152,11 @@ public class Wrapper {
 
                     // print out response
                     System.out.println("\nResponse from node " + localAddress.getAddress().toString() + ", port "
-                            + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ":");
-                    System.out.println("Target Node " + result.getAddress().toString() + ", port " + result.getPort()
-                            + ", position " + Helper.hexIdAndPosition(result));
+                            + localAddress.getPort() + ", position " + Chord.Helper.hexIdAndPosition(localAddress) + ":");
+                    System.out.println("Target Chord.Node " + result.getAddress().toString() + ", port " + result.getPort()
+                            + ", position " + Chord.Helper.hexIdAndPosition(result));
 
-                    targetAddress = Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());
+                    targetAddress = Chord.Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());
 
                     System.out.println("Getting key: " + key + " from node: " + targetAddress.getAddress().toString()
                             + " port: " + targetAddress.getPort());
@@ -184,7 +183,7 @@ public class Wrapper {
 
         // check if key exists
         if (!storage.containsKey(key)) {
-            return "key: " + key + " does not exist in Chord";
+            return "key: " + key + " does not exist in Chord.Chord";
         }
 
         // get value
@@ -202,7 +201,7 @@ public class Wrapper {
         // add key and value to storage
         storage.put(key, value);
 
-        return "successfully added key: " + key + " value: " + value + " to Chord";
+        return "successfully added key: " + key + " value: " + value + " to Chord.Chord";
     }
 
     private void joinChordNetwork(String ip, String port) {
@@ -346,7 +345,7 @@ public class Wrapper {
         // print out response
         System.out.println("\nResponse from node " + localAddress.getAddress().toString() + ", port "
                 + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ":");
-        System.out.println("Target Node " + result.getAddress().toString() + ", port " + result.getPort()
+        System.out.println("Target Chord.Node " + result.getAddress().toString() + ", port " + result.getPort()
                 + ", position " + Helper.hexIdAndPosition(result));
 
         targetAddress = Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());
@@ -373,7 +372,7 @@ public class Wrapper {
         // print out response
         System.out.println("\nResponse from node " + localAddress.getAddress().toString() + ", port "
                 + localAddress.getPort() + ", position " + Helper.hexIdAndPosition(localAddress) + ":");
-        System.out.println("Target Node " + result.getAddress().toString() + ", port " + result.getPort()
+        System.out.println("Target Chord.Node " + result.getAddress().toString() + ", port " + result.getPort()
                 + ", position " + Helper.hexIdAndPosition(result));
 
         targetAddress = Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());

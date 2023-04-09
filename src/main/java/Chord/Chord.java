@@ -1,10 +1,12 @@
+package Chord;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
 /**
- * Chord class that offers the UI to create chord node 
+ * Chord.Chord class that offers the UI to create chord node
  * and join a existing chord ring.
  * @author Chuan Xia
  *
@@ -63,7 +65,7 @@ public class Chord {
 		}
 		
 		// print join info
-		System.out.println("Joining the Chord ring.");
+		System.out.println("Joining the Chord.Chord ring.");
 		System.out.println("Local IP: "+local_ip);
 		m_node.printNeighbors();
 		

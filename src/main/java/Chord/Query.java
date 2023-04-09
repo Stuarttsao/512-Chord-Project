@@ -1,8 +1,10 @@
+package Chord;
+
 import java.net.InetSocketAddress;
 import java.util.Scanner;
 
 /**
- * Query class that offers the interface by which users can do 
+ * Chord.Query class that offers the interface by which users can do
  * search by querying a valid chord node.
  * @author Chuan Xia
  *
@@ -108,7 +110,7 @@ public class Query {
 					
 					// print out response
 					System.out.println("\nResponse from node "+localAddress.getAddress().toString()+", port "+localAddress.getPort()+", position "+Helper.hexIdAndPosition(localAddress)+":");
-					System.out.println("Node "+result.getAddress().toString()+", port "+result.getPort()+", position "+Helper.hexIdAndPosition(result ));
+					System.out.println("Chord.Node "+result.getAddress().toString()+", port "+result.getPort()+", position "+Helper.hexIdAndPosition(result ));
 				}
 			}
 		}
