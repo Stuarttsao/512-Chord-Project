@@ -20,7 +20,7 @@ public class DynamoDBWrapper {
 
     public DynamoDBWrapper() {
         this.ddb = AmazonDynamoDBClientBuilder.standard()
-                .withRegion(Regions.US_EAST_2)
+                .withRegion(Regions.US_EAST_1)
                 .withCredentials(new AWSStaticCredentialsProvider(AWS_CREDS))
                 .build();
     }
@@ -97,6 +97,7 @@ public class DynamoDBWrapper {
 
     public static void main (String[] args) {
         DynamoDBWrapper test = new DynamoDBWrapper();
+        System.out.println("Connected");
         test.putHash(1, DynamoDataTypeEnum.PASSWORD, "test_user", "1", "test_hash");
         System.out.println("Got hash " + test.getHash(1, DynamoDataTypeEnum.PASSWORD, "test_user", "1"));
     }
