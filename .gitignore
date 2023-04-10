@@ -5,3 +5,5 @@
 src/main/java/AWSCreds
 
 target
+
+.DS_Store
