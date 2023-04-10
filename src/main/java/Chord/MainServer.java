@@ -82,8 +82,8 @@ public class MainServer {
             String saltString = new String(salt, Charset.forName("UTF-8"));
             String hashedPart = hashSaltedPart(part, saltString);
 
-            wrapper.insert(username + "salt" + i, saltString);
-            wrapper.insert(username + "hash" + i, hashedPart);
+            wrapper.insert(username + "-salt-" + i, saltString);
+            wrapper.insert(username + "-hash-" + i, hashedPart);
         }
 
         return true;
@@ -95,14 +95,14 @@ public class MainServer {
 
         for(int i = 0; i < split.size(); i++) {
             String part = split.get(i);
-            String saltString = wrapper.get(username + "salt" + i);
+            String saltString = wrapper.get(username + "-salt-" + i);
             String hashedPart = hashSaltedPart(part, saltString);
             passwordHash.append(hashedPart);
         }
 
         StringBuilder correctHash = new StringBuilder();
         for(int i = 0; i < N; i++) {
-            correctHash.append(wrapper.get(username + "hash" + i));
+            correctHash.append(wrapper.get(username + "-hash-" + i));
         }
 
         return passwordHash.toString().equals(correctHash.toString());
