@@ -1,5 +1,7 @@
 package Chord;
 
+import DynamoDB.DynamoDBWrapper;
+
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 
@@ -13,11 +15,13 @@ public class Wrapper {
     private InetSocketAddress localAddress;
     private InetSocketAddress targetAddress;
     private HashMap<String, String> storage;
+    private DynamoDBWrapper dbStorage;
     private Helper helper;
 
     public Wrapper(String ip, String port) {
         helper = new Helper();
         storage = new HashMap<String, String>();
+        dbStorage = new DynamoDBWrapper();
         joinChordNetwork(ip, port);
     }
 
@@ -192,6 +196,16 @@ public class Wrapper {
         return value;
     }
 
+    private String getDynamoDB(String key, String address, int port) {
+        if (dbStorage == null) {
+            dbStorage = new DynamoDBWrapper();
+        }
+
+        String value = dbStorage.getHash(address, port, key);
+
+        return value;
+    }
+
     public String insertTempHashMap(String key, String value) {
         // insert into local storage
         if (storage == null) {
@@ -202,6 +216,16 @@ public class Wrapper {
         storage.put(key, value);
 
         return "successfully added key: " + key + " value: " + value + " to Chord.Chord";
+    }
+
+    private String insertDynamoDB(String key, String value, String address, int port) {
+        if (dbStorage == null) {
+            dbStorage = new DynamoDBWrapper();
+        }
+
+        dbStorage.putHash(address, port, key, value);
+
+        return "successfully added key: " + key + " value: " + value + " to Chord Node " + address+":"+port;
     }
 
     private void joinChordNetwork(String ip, String port) {
@@ -352,7 +376,9 @@ public class Wrapper {
 
         System.out.println("Inserting key: " + key + " value: " + value + " to node: "
                 + targetAddress.getAddress().toString() + " port: " + targetAddress.getPort());
-        String res = insertTempHashMap(key, value);
+
+        // String res = insertTempHashMap(key, value);
+        String res = insertDynamoDB(key, value, targetAddress.getAddress().toString(), targetAddress.getPort());
         System.out.println(res);
     }
 
@@ -379,7 +405,7 @@ public class Wrapper {
 
         System.out.println("Getting key: " + key + " from node: " + targetAddress.getAddress().toString()
                 + " port: " + targetAddress.getPort());
-        String res = getTempHashMap(key);
+        String res = getDynamoDB(key, targetAddress.getAddress().toString(), targetAddress.getPort());
         System.out.println("\n" + res + "\n" ) ;
         return res;
     }

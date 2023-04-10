@@ -1,7 +1,7 @@
 package DynamoDB;
 
 enum DynamoDataTypeEnum {
-    PASSWORD("password"),
+    HASH("hash"),
     SALT("salt");
 
     public final String label;

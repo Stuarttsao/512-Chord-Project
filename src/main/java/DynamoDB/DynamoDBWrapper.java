@@ -25,27 +25,25 @@ public class DynamoDBWrapper {
                 .build();
     }
 
-    private String buildKey(int nodeId, DynamoDataTypeEnum dataType, String user, String seqNum) {
+
+    private String buildKey(String address, int port, String user) {
         StringBuilder key = new StringBuilder();
         key.append("Chord.Node#");
-        key.append(nodeId);
+        key.append(address);
+        key.append(":");
+        key.append(port);
         key.append("-");
         key.append(user);
-        key.append("-");
-        key.append(dataType.label);
-        key.append("-");
-        key.append("hash#");
-        key.append(seqNum);
         return key.toString();
     }
 
-    public void putHash(int nodeId, DynamoDataTypeEnum dataType, String user, String seqNum, String hash) {
+    public void putHash(String address, int port, String user, String hash) {
         Map<String, AttributeValue> item_values = new HashMap<>();
 
-        String key = buildKey(nodeId, dataType, user, seqNum);
+        String key = buildKey(address, port, user);
 
         item_values.put("ID", new AttributeValue(key));
-        item_values.put("Hash", new AttributeValue(hash));
+        item_values.put("Value", new AttributeValue(hash));
 
         try {
             ddb.putItem(TABLE_NAME, item_values);
@@ -59,16 +57,14 @@ public class DynamoDBWrapper {
         }
     }
 
+
     /**
      * Finds hash associated with given parameters
-     * @param nodeId id of the node who has the hash
-     * @param dataType if the hash is for a password or salt
-     * @param user username that the hash is associated to
-     * @param seqNum seqNum of the hash
+     * @param user user inforamtion associated with the hash
      * @return Returns either a String of the hash or an empty String if the hash could not be found
      */
-    public String getHash(int nodeId, DynamoDataTypeEnum dataType, String user, String seqNum) {
-        String keyString = buildKey(nodeId, dataType, user, seqNum);
+    public String getHash(String address, int port, String user) {
+        String keyString = buildKey(address, port, user);
 
         Map<String, AttributeValue> key = new HashMap<>();
         key.put("ID", new AttributeValue(keyString));
@@ -83,7 +79,7 @@ public class DynamoDBWrapper {
             Map<String,AttributeValue> returned_item =
                     ddb.getItem(request).getItem();
             if (returned_item != null) {
-                hashVal = returned_item.get("Hash").getS();
+                hashVal = returned_item.get("Value").getS();
             } else {
                 System.out.format("No item found with the key %s!\n", keyString);
                 hashVal = "";
@@ -98,7 +94,7 @@ public class DynamoDBWrapper {
     public static void main (String[] args) {
         DynamoDBWrapper test = new DynamoDBWrapper();
         System.out.println("Connected");
-        test.putHash(1, DynamoDataTypeEnum.PASSWORD, "test_user", "1", "test_hash");
-        System.out.println("Got hash " + test.getHash(1, DynamoDataTypeEnum.PASSWORD, "test_user", "1"));
+        // test.putHash(1, DynamoDataTypeEnum.HASH, "test_user", "1", "test_hash");
+        // System.out.println("Got hash " + test.getHash(1, DynamoDataTypeEnum.HASH, "test_user", "1"));
     }
 }
