@@ -1,13 +1,17 @@
 package Chord;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import com.amazonaws.services.dynamodbv2.document.Item;
+import DynamoDB.DynamoDBWrapper;
 
 /**
  * Chord.Node class that implements the core data structure
  * and functionalities of a chord node
  * @author Chuan Xia
- *
+ * @author Havish Malladi
  */
 
 public class Node {
@@ -21,6 +25,7 @@ public class Node {
 	private Stabilize stabilize;
 	private FixFingers fix_fingers;
 	private AskPredecessor ask_predecessor;
+	private DynamoDBWrapper dbWrapper;
 
 	/**
 	 * Constructor
@@ -45,6 +50,7 @@ public class Node {
 		stabilize = new Stabilize(this);
 		fix_fingers = new FixFingers(this);
 		ask_predecessor = new AskPredecessor(this);
+		dbWrapper = new DynamoDBWrapper();
 	}
 
 	/**
@@ -130,7 +136,6 @@ public class Node {
 
 	/**
 	 * Ask current node to find id's predecessor
-	 * @param id
 	 * @return id's successor's socket address
 	 */
 	private InetSocketAddress find_predecessor (long findid) {
@@ -288,6 +293,8 @@ public class Node {
 		if (successor == null)
 			return;
 
+		ArrayList<Item> items = dbWrapper.deleteItems(successor);
+
 		// find the last existence of successor in the finger table
 		int i = 32;
 		for (i = 32; i > 0; i--) {
@@ -334,7 +341,13 @@ public class Node {
 			}
 
 			// update successor
+			dbWrapper.putItems(p, items);
 			updateIthFinger(1, p);
+		} else {
+			if (successor != null)
+				dbWrapper.putItems(successor, items);
+			else
+				dbWrapper.putItems(localAddress, items);
 		}
 	}
 
@@ -422,7 +435,7 @@ public class Node {
 		System.out.println("\nYou are listening on port "+localAddress.getPort()+"."
 				+ "\nYour position is "+Helper.hexIdAndPosition(localAddress)+".");
 		InetSocketAddress successor = finger.get(1);
-		
+		System.out.println("Your local id is " + localAddress);
 		// if it cannot find both predecessor and successor
 		if ((predecessor == null || predecessor.equals(localAddress)) && (successor == null || successor.equals(localAddress))) {
 			System.out.println("Your predecessor is yourself.");
@@ -485,5 +498,7 @@ public class Node {
 			stabilize.toDie();
 		if (ask_predecessor != null)
 			ask_predecessor.toDie();
+		if (dbWrapper != null)
+			dbWrapper.shutdown();
 	}
 }
