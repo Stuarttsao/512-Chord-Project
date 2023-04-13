@@ -315,11 +315,12 @@ public class Node {
 		// try to fill successor
 		fillSuccessor();
 		successor = getSuccessor();
+		System.out.println(successor.getPort());
 
 		// if successor is still null or local node, 
 		// and the predecessor is another node, keep asking 
 		// it's predecessor until find local node's new successor
-		if ((successor == null || successor.equals(successor)) && predecessor!=null && !predecessor.equals(localAddress)) {
+		if ((successor == null || successor.equals(localAddress)) && predecessor!=null && !predecessor.equals(localAddress)) {
 			InetSocketAddress p = predecessor;
 			InetSocketAddress p_pre = null;
 			while (true) {
@@ -341,13 +342,16 @@ public class Node {
 			}
 
 			// update successor
+			System.out.println("here");
 			dbWrapper.putItems(p, items);
 			updateIthFinger(1, p);
 		} else {
-			if (successor != null)
+			if (successor != null) {
+				System.out.println("there");
 				dbWrapper.putItems(successor, items);
-			else
+			} else {
 				dbWrapper.putItems(localAddress, items);
+			}
 		}
 	}
 
