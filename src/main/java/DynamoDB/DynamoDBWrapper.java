@@ -50,7 +50,6 @@ public class DynamoDBWrapper {
             toDelete.put("ID", new AttributeValue(i.get("ID").toString()));
             try {
                 ddb.deleteItem(TABLE_NAME, toDelete);
-                System.out.println("Deleted " + i.get("ID").toString());
             } catch (AmazonServiceException e) {
                 System.err.println(e.getMessage());
                 System.exit(1);
@@ -78,8 +77,6 @@ public class DynamoDBWrapper {
         ArrayList<Item> itemsAr = new ArrayList<>();
         while (iterator.hasNext()) {
             Item item = iterator.next();
-            System.out.println(item.get("Node"));
-            System.out.println(item.get("ID"));
             itemsAr.add(item);
         }
         return itemsAr;
@@ -95,6 +92,8 @@ public class DynamoDBWrapper {
             item_values.clear();
             String user = item.get("ID").toString().split("-", 2)[1];
             String key = buildKey(address, port, user);
+            System.out.println(String.format("Moving %s from Node %s to Node %s", user,
+                                            item.get("Node").toString(), address+":"+port));
             item_values.put("Node", new AttributeValue(address+":"+port));
             item_values.put("ID", new AttributeValue(key));
             item_values.put("Value", new AttributeValue(item.get("Value").toString()));
