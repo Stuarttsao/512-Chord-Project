@@ -342,12 +342,12 @@ public class Node {
 			}
 
 			// update successor
-			System.out.println("here");
+			// System.out.println("here");
 			dbWrapper.putItems(p, items);
 			updateIthFinger(1, p);
 		} else {
 			if (successor != null) {
-				System.out.println("there");
+				// System.out.println("there");
 				dbWrapper.putItems(successor, items);
 			} else {
 				dbWrapper.putItems(localAddress, items);
