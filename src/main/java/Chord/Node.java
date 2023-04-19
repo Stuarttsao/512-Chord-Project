@@ -69,6 +69,12 @@ public class Node {
 				System.out.println("\nCannot find node you are trying to contact. Please exit.\n");
 				return false;
 			}
+			ArrayList<Item> items = dbWrapper.deleteItems(contact);
+			for (Item item : items) {
+				String key = item.get("ID").toString().split("-", 2)[1];
+				insert(key, item.get("Value").toString(), localAddress);
+			}
+
 			updateIthFinger(1, successor);
 		}
 
@@ -79,6 +85,41 @@ public class Node {
 		ask_predecessor.start();
 
 		return true;
+	}
+
+	public void insert(String key, String value, InetSocketAddress contact) {
+		// search key location and print out response
+		long hash = Helper.hashString(key);
+		System.out.println("\nHash value is " + Long.toHexString(hash));
+		InetSocketAddress result = Helper.requestAddress(contact, "FINDSUCC_" + hash);
+
+		// if fail to send request, local node is disconnected, exit
+		if (result == null) {
+			System.out.println("The node your are contacting is disconnected. Now exit.");
+			System.exit(0);
+		}
+
+		// print out response
+		System.out.println("\nResponse from node " + contact.getAddress().toString() + ", port "
+				+ contact.getPort() + ", position " + Helper.hexIdAndPosition(contact) + ":");
+		System.out.println("Target Chord.Node " + result.getAddress().toString() + ", port " + result.getPort()
+				+ ", position " + Helper.hexIdAndPosition(result));
+
+		InetSocketAddress targetAddress = Helper.createSocketAddress(result.getAddress().toString() + ":" + result.getPort());
+
+		System.out.println("Inserting key: " + key + " value: " + value + " to node: "
+				+ targetAddress.getAddress().toString() + " port: " + targetAddress.getPort());
+
+		// String res = insertTempHashMap(key, value);
+		String res = insertDynamoDB(key, value, targetAddress.getAddress().toString(), targetAddress.getPort());
+		System.out.println(res);
+	}
+
+	private String insertDynamoDB(String key, String value, String address, int port) {
+
+		dbWrapper.putHash(address, port, key, value);
+
+		return "successfully added key: " + key + " value: " + value + " to Chord Node " + address+":"+port;
 	}
 
 	/**
