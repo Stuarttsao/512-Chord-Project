@@ -1,5 +1,5 @@
 # P2Pass: A Distributed Password Storage System Using Peer-to-Peer Lookup with Chord
-By: Brandon Bae, Havish Malladi, Edison Ooi, Stuart Tsao
+By: Havish Malladi, Edison Ooi, Stuart Tsao, Brandon Bae
 
 P2Pass is a novel distributed password storage system that
 uses the Chord framework to enhance the security of password storage. P2Pass incorporates two main components to
